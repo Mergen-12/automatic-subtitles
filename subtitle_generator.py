@@ -10,11 +10,11 @@ import os
 change_settings({"IMAGEMAGICK_BINARY": r"C:\Program Files\ImageMagick-7.1.1-Q16-HDRI\magick.exe"})
 
 # Specify input and output paths
-input_video_path = "C:\\Users\\dvt\\Documents\\Testing\\TestSet01.mp4"
-output_path = "C:\\Users\\dvt\\Dev\\Data Science and Machine Learning\\output"
-audio_file_path = os.path.join(output_path, "TestSet01.wav")
-srt_file_path = os.path.join(output_path, "TestSet01_subtitles.srt")
-output_video_file = os.path.join(output_path, "TestSet01_subtitled.mp4")
+input_video_path = "test.mp4"
+output_path = "output"
+audio_file_path = os.path.join(output_path, "audio.wav")
+srt_file_path = os.path.join(output_path, "test_subtitles.srt")
+output_video_file = os.path.join(output_path, "test_subtitled.mp4")
 
 # Function to extract audio from the video
 def extract_audio(input_video_path, output_audio_path):
