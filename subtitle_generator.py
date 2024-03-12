@@ -58,11 +58,21 @@ normalized_sound = normalized_sound - normalized_sound.dBFS + 20.0
 nonsilent_data = detect_nonsilent(normalized_sound, min_silence_len=500, silence_thresh=-20, seek_step=1)
 # print("Non-silent chunks:", nonsilent_data)
 # Convert ms to seconds and create SRT timestamps
+max_segment_duration = 6
 timestamps = []
 for chunks in nonsilent_data:
     start_time = chunks[0] / 1000
     end_time = chunks[1] / 1000
-    timestamps.append((start_time, end_time))
+
+    # Calculate the number of segments needed
+    num_segments = int((end_time - start_time) / max_segment_duration) + 1
+
+    # Adjust timestamps for each segment
+    for i in range(num_segments):
+        segment_start = start_time + i * max_segment_duration
+        segment_end = min(start_time + (i + 1) * max_segment_duration, end_time)
+
+        timestamps.append((segment_start, segment_end))
 
 # print(subtitles)
 # Calculate the average number of subtitles per chunk
