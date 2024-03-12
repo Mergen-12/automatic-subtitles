@@ -4,7 +4,7 @@ from moviepy.editor import VideoFileClip, TextClip, CompositeVideoClip
 from moviepy.config import change_settings
 from pydub import AudioSegment
 from pydub.silence import detect_nonsilent
-from datetime import datetime, timedelta, date
+from datetime import timedelta
 import os
 
 change_settings({"IMAGEMAGICK_BINARY": r"C:\Program Files\ImageMagick-7.1.1-Q16-HDRI\magick.exe"})
@@ -39,7 +39,7 @@ with audio_clip as source:
 
     # Perform speech-to-text
     try:
-        text = recognizer.recognize_google(audio, show_all=False)
+        text = recognizer.recognize_google(audio)
         sentences = text.split()  # Split text into sentences
 
         subtitles.extend(sentences)
@@ -71,12 +71,13 @@ average_subtitles_per_chunk = len(subtitles) / len(timestamps)
 # Create SRT subtitle file
 with open(srt_file_path, 'w') as srt_file:
     subtitle_number = 1
-    space = 0
+    space = 1
     for timestamp in timestamps:
         start_time_str = str(timedelta(seconds=timestamp[0]))
         end_time_str = str(timedelta(seconds=timestamp[1]))
         
         if 1 < space:
+            srt_file.write ('\n')
             srt_file.write ('\n')
         space+=1
         srt_file.write(str(subtitle_number) + '\n')
@@ -97,14 +98,6 @@ with open(srt_file_path, 'w') as srt_file:
     # Calculate the total duration of the audio (in seconds)
     audio_duration = audio_segment.duration_seconds
 
-    # If there are additional subtitles, add them with blank timestamps
-    for i in range(subtitle_number, len(subtitles) + 1):
-        srt_file.write(str(i) + '\n')
-        srt_file.write('0:00:00,000 --> {} \n'.format(str(timedelta(seconds=audio_duration))))
-        srt_file.write(subtitles[i - 1].strip() + ' ')
-    # print("SRT file generated:", srt_file_path)
-
-#Function to create subtitle clips
 def time_to_seconds(time_obj):
     return time_obj.hours * 3600 + time_obj.minutes * 60 + time_obj.seconds + time_obj.milliseconds / 1000
 
@@ -128,17 +121,15 @@ def create_subtitle_clips(subtitles, videosize,fontsize=24, font='Arial', color=
 
     return subtitle_clips
 
-
-
 # Load video and SRT file
 video = VideoFileClip(input_video_path)
 subtitles = pysrt.open(srt_file_path)
 
-# # # Create subtitle clips
+# Create subtitle clips
 subtitle_clips = create_subtitle_clips(subtitles, video.size)
 
-# # Add subtitles to the video
+# Add subtitles to the video
 final_video = CompositeVideoClip([video] + subtitle_clips)
 
-# # Write output video file
-final_video.write_videofile(output_video_file, codec="libx264", audio_codec="aac", temp_audiofile="temp.m4a", remove_temp=True, audio_fps=44100)
+# Write output video file
+final_video.write_videofile(output_video_file)
